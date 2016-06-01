@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.btn_title_appearance:
-                mToolbar.setTitleTextAppearance(this, android.R.style.TextAppearance_Holo_Small);
+                mToolbar.setTitleTextAppearance(this, android.R.style.TextAppearance_Holo);
                 break;
 
             default:
