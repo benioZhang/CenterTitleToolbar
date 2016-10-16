@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
 import android.support.v7.widget.TintTypedArray;
 import android.support.v7.widget.Toolbar;
+import android.text.Layout;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -45,19 +46,21 @@ public class CenterTitleToolbar extends Toolbar {
         context = getContext();
         final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
                 R.styleable.Toolbar, defStyleAttr, 0);
-
-        final int titleTextAppearance = a.getResourceId(R.styleable.Toolbar_titleTextAppearance, 0);
-        if (titleTextAppearance != 0) {
-            setTitleTextAppearance(context, titleTextAppearance);
+        try {
+            // Toolbar中先获取titleTextAppearance，接着是title，最后是titleTextColor
+            // 字体颜色优先级：mTitleTextColor > mTitleTextAppearance中的字体颜色
+            // 考虑到有可能会Toolbar本身会带Title，mTitleTextView有可能不能正确显示样式
+            // 所以这里要再设置mTitleTextAppearance和mTitleTextColor
+            final int titleTextAppearance = a.getResourceId(R.styleable.Toolbar_titleTextAppearance, 0);
+            if (titleTextAppearance != 0) {
+                setTitleTextAppearance(context, titleTextAppearance);
+            }
+            if (a.hasValue(R.styleable.Toolbar_titleTextColor)) {
+                setTitleTextColor(a.getColor(R.styleable.Toolbar_titleTextColor, 0xffffffff));
+            }
+        } finally {
+            a.recycle();
         }
-
-        // 字体颜色优先级：mTitleTextColor > mTitleTextAppearance中的字体颜色
-        // 这里因为上面要重新获取TextAppearance，设置的时候会覆盖掉颜色
-        // 所以这里要再设置一次字体颜色
-        if (mTitleTextColor != 0) {
-            setTitleTextColor(mTitleTextColor);
-        }
-        a.recycle();
     }
 
     @Override
@@ -121,6 +124,26 @@ public class CenterTitleToolbar extends Toolbar {
         if (mTitleTextView != null) {
             mTitleTextView.setTextColor(color);
         }
+    }
+
+    @Override
+    public boolean isTitleTruncated() {
+        if (mTitleTextView == null) {
+            return false;
+        }
+
+        final Layout titleLayout = mTitleTextView.getLayout();
+        if (titleLayout == null) {
+            return false;
+        }
+
+        final int lineCount = titleLayout.getLineCount();
+        for (int i = 0; i < lineCount; i++) {
+            if (titleLayout.getEllipsisCount(i) > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 

@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         findViewById(R.id.btn_notitle).setOnClickListener(this);
+        findViewById(R.id.btn_showtitle).setOnClickListener(this);
         findViewById(R.id.btn_title).setOnClickListener(this);
         findViewById(R.id.btn_subtitle).setOnClickListener(this);
         findViewById(R.id.btn_title_color).setOnClickListener(this);
@@ -100,6 +101,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 mToolbar.setTitleTextAppearance(this, android.R.style.TextAppearance_Holo);
                 break;
 
+            case R.id.btn_showtitle:
+                if (getSupportActionBar() != null) {
+                    getSupportActionBar().setDisplayShowTitleEnabled(true);
+                }
+                break;
             default:
                 break;
         }
