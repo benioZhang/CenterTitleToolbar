@@ -28,20 +28,20 @@ public class CenterTitleToolbar extends Toolbar {
 
     public CenterTitleToolbar(Context context) {
         super(context);
-        resolveAttribute(context, null, R.attr.toolbarStyle);
+        init(context, null, R.attr.toolbarStyle);
     }
 
     public CenterTitleToolbar(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        resolveAttribute(context, attrs, R.attr.toolbarStyle);
+        init(context, attrs, R.attr.toolbarStyle);
     }
 
     public CenterTitleToolbar(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        resolveAttribute(context, attrs, defStyleAttr);
+        init(context, attrs, defStyleAttr);
     }
 
-    private void resolveAttribute(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    private void init(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         // Need to use getContext() here so that we use the themed context
         context = getContext();
         final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
@@ -49,8 +49,6 @@ public class CenterTitleToolbar extends Toolbar {
         try {
             // Toolbar中先获取titleTextAppearance，接着是title，最后是titleTextColor
             // 字体颜色优先级：mTitleTextColor > mTitleTextAppearance中的字体颜色
-            // 考虑到有可能会Toolbar本身会带Title，mTitleTextView有可能不能正确显示样式
-            // 所以这里要再设置mTitleTextAppearance和mTitleTextColor
             final int titleTextAppearance = a.getResourceId(R.styleable.Toolbar_titleTextAppearance, 0);
             if (titleTextAppearance != 0) {
                 setTitleTextAppearance(context, titleTextAppearance);
@@ -84,6 +82,7 @@ public class CenterTitleToolbar extends Toolbar {
                 }
             }
             if (mTitleTextView.getParent() != this) {
+                // 添加到Toolbar并居中显示
                 addCenterView(mTitleTextView);
             }
         } else if (mTitleTextView != null && mTitleTextView.getParent() == this) { // 当title为空时，remove
