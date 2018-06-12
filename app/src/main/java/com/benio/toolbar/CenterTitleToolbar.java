@@ -26,38 +26,30 @@ public class CenterTitleToolbar extends Toolbar {
     private int mTitleTextColor;
     private int mTitleTextAppearance;
 
+    private boolean mInitialized = false;
+
     public CenterTitleToolbar(Context context) {
-        super(context);
-        init(context, null, R.attr.toolbarStyle);
+        this(context, null);
     }
 
     public CenterTitleToolbar(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        init(context, attrs, R.attr.toolbarStyle);
+        this(context, attrs, R.attr.toolbarStyle);
     }
 
     public CenterTitleToolbar(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context, attrs, defStyleAttr);
-    }
 
-    private void init(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        // Need to use getContext() here so that we use the themed context
-        context = getContext();
-        final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
+        // 这里是为了获取textAppearance
+        // 因为Toolbar在构造时并没有调用setTitleTextAppearance，导致维护的mTitleTextAppearance与其不一致
+        final TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
                 R.styleable.Toolbar, defStyleAttr, 0);
-        try {
-            // Toolbar中先获取titleTextAppearance，接着是title，最后是titleTextColor
-            // 字体颜色优先级：mTitleTextColor > mTitleTextAppearance中的字体颜色
-            final int titleTextAppearance = a.getResourceId(R.styleable.Toolbar_titleTextAppearance, 0);
-            if (titleTextAppearance != 0) {
-                setTitleTextAppearance(context, titleTextAppearance);
-            }
-            if (a.hasValue(R.styleable.Toolbar_titleTextColor)) {
-                setTitleTextColor(a.getColor(R.styleable.Toolbar_titleTextColor, 0xffffffff));
-            }
-        } finally {
-            a.recycle();
+        mTitleTextAppearance = a.getResourceId(R.styleable.Toolbar_titleTextAppearance, 0);
+        a.recycle();
+
+        mInitialized = true;
+        // 重新设置Title
+        if (!TextUtils.isEmpty(mTitleText)) {
+            setTitle(mTitleText);
         }
     }
 
@@ -68,6 +60,10 @@ public class CenterTitleToolbar extends Toolbar {
 
     @Override
     public void setTitle(CharSequence title) {
+        mTitleText = title;
+        if (!mInitialized) {
+            return;
+        }
         if (!TextUtils.isEmpty(title)) {
             if (mTitleTextView == null) { // 懒加载
                 final Context context = getContext();
